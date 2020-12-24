@@ -19,7 +19,7 @@ module "audit" {
 module "bastion" {
   source = "../../../modules/base/aws-organization-account/v1"
   name   = "bastion"
-  email  = "drendov@gmail.com"
+  email  = local.email
 }
 
 module "production" {
