@@ -11,7 +11,6 @@ read -d '' JQ <<-"HERE" || true
 | .terraform.backend.s3.key |= ($a[0]["variable"]["account_name"]["default"]) + "/" + $rolepath + "/" + $role
 | .terraform.backend.s3.bucket |= $v[0]["variable"]["terraform_remote_state_bucket"]["default"]
 | .terraform.backend.s3.profile |= $g[0]["profile"]
-| .terraform.backend.s3.role_arn |= $g[0]["role_arn"]
 | .terraform.backend.s3.session_name |= $g[0]["session_name"]
 | .terraform.backend.s3.encrypt = "true"
 HERE

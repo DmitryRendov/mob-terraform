@@ -2,7 +2,7 @@
 TF_ROOT := $(shell git rev-parse --show-toplevel)
 TF := $(TF_ROOT)/tf
 
-include $(TF_ROOT)/terraform/lib/common.makefile
+include $(TF_ROOT)/lib/common.makefile
 
 ## Generate a new ssh keypair for adding to EC2. USE A PASSPHRASE!
 new-ec2-keypair-%:
