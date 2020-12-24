@@ -120,11 +120,11 @@ refresh-%: check get check-workspace-name-is-allowed-% select-%
 
 ## Show current TF state
 show: check select-default
-	$(TF) show
+	$(TF) show $(ARGS)
 
 ## Show current TF state
 show-%: check select-%
-	$(TF) show
+	$(TF) show $(ARGS)
 
 ## Generate a backend.tf.json file for storing remote state
 backend.tf.json:
@@ -141,6 +141,8 @@ credentials-checks:
 	@[[ -z $${AWS_DEFAULT_REGION} ]]    || { echo AWS_DEFAULT_REGION environment variable need to be NOT SET - It overrides values in variables.tf, which can be bad.; exit 1; }
 	@[[ -z $${AWS_ACCESS_KEY_ID} ]]     || { echo AWS_ACCESS_KEY_ID environment variable needs to be NOT SET.; exit 1; }
 	@[[ -z $${AWS_SECRET_ACCESS_KEY} ]] || { echo AWS_SECRET_ACCESS_KEY environment variable needs to be NOT SET.; exit 1; }
+	@$(TF_ROOT)/lib/verify-sts-token
+        # AWS credentials ok.
 
 ## Initialize backends and download Terraform provider plugins
 $(LOCK_JSON) init: global-variables.tf.json | credentials-checks

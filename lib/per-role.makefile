@@ -10,5 +10,5 @@ all: enable-remote-state enable-plugins update ## Configure this module for Terr
 
 -include role-extra.makefile
 
-include $(TF_ROOT)/terraform/lib/common.makefile
-include $(TF_ROOT)/terraform/lib/common-build-targets.makefile
+include $(TF_ROOT)/lib/common.makefile
+include $(TF_ROOT)/lib/common-build-targets.makefile
