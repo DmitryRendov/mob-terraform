@@ -1,5 +1,6 @@
-#!/bin/bash
-set -xuo pipefail
+#!/usr/bin/env bash
+
+set -euo pipefail
 
 # Get current script directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -16,5 +17,5 @@ HERE
 jq --sort-keys --indent 2 < ${DIR}/../account_template/account-variables.tf.json.template "$JQ" > account-variables.tf.json
 
 aws --profile $NAME-super-user configure set role_arn arn:aws:iam::$ACCOUNT_ID:role/super-user
-aws --profile $NAME-super-user configure set region us-east-1
+aws --profile $NAME-super-user configure set region us-west-2
 aws --profile $NAME-super-user configure set source_profile sts

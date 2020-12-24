@@ -1,5 +1,5 @@
 TF_ROOT := $(shell git rev-parse --show-toplevel)
-TF := $(TF_ROOT)/terraform/tf
+TF := $(TF_ROOT)/tf
 
 include lib/common.makefile
 
@@ -7,7 +7,7 @@ include lib/common.makefile
 new-account-%:
 	@mkdir $*
 	@rsync --exclude="*template" -a ./lib/account_template/ ./$*
-	@cd $* && echo("${TF_ROOT}/terraform/lib/tools/account_variables_renderer $*")
+	@cd $* && ${TF_ROOT}/lib/tools/account_variables_renderer $*
 
 	@echo "Now cd $*/global/core, 'make init', and run 'make new-workspace-%' (if needed) for the workspaces relevant to your account.  Import the super-user role and role attachment resources and 'make apply'"
 	@echo "Then cd $*/global/global and run 'make new-workspace-%' (if needed) for the workspaces relevant to your account."
