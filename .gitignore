@@ -1,0 +1,12 @@
+*.tfstate
+*.tfstate.backup
+.terraform/
+environment.sh
+environment_override.tf.json
+saved-plan
+saved*plan
+*.pyc
+**/crash.log
+**/terraform.tfstate.*.backup
+.idea
+*.iml

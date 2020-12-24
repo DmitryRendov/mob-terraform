@@ -1,0 +1,15 @@
+#!/bin/bash
+
+expiration_time=$(aws configure get profile.sts.terraform_sts_expiration)
+
+if [[ -z "$expiration_time" ]]; then
+    echo "Logging you into the bastion account now..."
+    aws-bastion.sh login
+else
+    current_time=$(date +%s)
+    diff=$(($expiration_time - $current_time))
+    if [[ "$diff" -le 0 ]]; then
+        echo "Current token has expired, logging you into bastion account now..."
+        aws-bastion.sh login
+    fi
+fi
