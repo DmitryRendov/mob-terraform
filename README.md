@@ -1,7 +1,5 @@
 # Terraform #
 
-MOB Terraform
-
 ## Setup
 ```bash
 make setup
@@ -13,16 +11,16 @@ We use `make` to wrap Terraform commands and include extra functionality.
 
 #### Example commands
 ```
-make plan                                       #default workspace
-make plan-prod                                  #prod workspace
-make plan-prod TERRAFORM_EXEC_ROLE=joe.johnson  #prod workspace using the joe johnson role
-make apply-prod ARGS='-target=module.default'   #apply in prod and target one module
+make plan                                         #default workspace
+make plan-prod                                    #prod workspace
+make plan-prod TERRAFORM_EXEC_ROLE=dmitry_rendov  #prod workspace using the joe johnson role
+make apply-prod ARGS='-target=module.default'     #apply in prod and target one module
 ```
 
 #### Example set role before commands
 ```bash
 aws-bastion.sh login
-export TERRAFORM_EXEC_ROLE=joe.johnson
+export TERRAFORM_EXEC_ROLE=dmitry_rendov
 make plan-prod
 make apply-prod
 ```
@@ -49,7 +47,7 @@ A role is a distinct functionality which requires typically requires it's own se
 
 Examples:
 * website
-* minecraft
+* server
 * ecs
 
 ### **global-variables.tf.json ###
