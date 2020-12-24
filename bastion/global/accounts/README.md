@@ -14,33 +14,4 @@ the plan delete the prevent_destroy lifecycle rule in the module.
 
 <!-- BEGINNING OF TERRAFORM-DOCS HOOK -->
 
-## Inputs
-| Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-
-## Outputs
-| Name | Description |
-|------|-------------|
-| `account_ids` |  |
-
-Child Modules
--------------
-* `alpha` from `./module`
-* `audit` from `./module`
-* `bastion` from `./module`
-* `cloudfront_signing` from `./module`
-* `data_dev` from `./module`
-* `data_prod` from `./module`
-* `databricks_prod` from `./module`
-* `databricks_staging` from `./module`
-* `ep_integration` from `./module`
-* `ep_prod` from `./module`
-* `ep_staging` from `./module`
-* `headspace_integration` from `./module`
-* `headspace_prod` from `./module`
-* `headspace_skills` from `./module`
-* `headspace_staging` from `./module`
-* `it` from `./module`
-* `logging` from `./module`
-* `ops` from `./module`
 <!-- END OF TERRAFORM-DOCS HOOK -->
