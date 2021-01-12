@@ -12,11 +12,11 @@ data "aws_iam_policy_document" "assumerole_policy" {
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
 
-    #    condition {
-    #      test     = "Bool"
-    #      variable = "aws:MultiFactorAuthPresent"
-    #      values   = ["true"]
-    #    }
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values   = ["true"]
+    }
   }
 }
 
@@ -32,16 +32,16 @@ data "aws_iam_policy_document" "assumerole_all" {
       "arn:aws:iam::*:role/${var.name}",
     ]
 
-    #    condition {
-    #      test     = "Null"
-    #      variable = "aws:MultiFactorAuthAge"
-    #      values   = ["false"]
-    #    }
+    condition {
+      test     = "Null"
+      variable = "aws:MultiFactorAuthAge"
+      values   = ["false"]
+    }
 
-    #    condition {
-    #      test     = "NumericLessThan"
-    #      variable = "aws:MultiFactorAuthAge"
-    #      values   = ["43200"]
-    #    }
+    condition {
+      test     = "NumericLessThan"
+      variable = "aws:MultiFactorAuthAge"
+      values   = ["43200"]
+    }
   }
 }
