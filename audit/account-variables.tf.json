@@ -1,0 +1,19 @@
+{
+  "locals": {
+    "account_name": "${var.account_name}",
+    "aws_account_id": "${var.aws_account_id}"
+  },
+  "variable": {
+    "account_name": {
+      "default": "audit",
+      "description": "The name of this account"
+    },
+    "aws_account_id": {
+      "default": "652427744890",
+      "description": "The account number for this account"
+    },
+    "region": {
+      "default": "us-east-1"
+    }
+  }
+}
