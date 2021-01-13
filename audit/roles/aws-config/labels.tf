@@ -1,6 +1,6 @@
 module "label" {
   source      = "../../../modules/base/null-label/v1"
-  environment = terraform.workspace
+  environment = "audit"
   role_name   = local.role_name
   team        = local.team
 }
