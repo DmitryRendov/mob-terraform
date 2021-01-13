@@ -18,14 +18,14 @@ resource "aws_iam_user" "user" {
   tags          = local.tags
 }
 
-#data "aws_iam_group" "mob_user" {
-#  group_name = "mob_user"
-#}
+data "aws_iam_group" "mob_user" {
+  group_name = "mob_user"
+}
 
-#resource "aws_iam_user_group_membership" "mob_user" {
-#  user   = aws_iam_user.user.name
-#  groups = [data.aws_iam_group.mob_user.group_name]
-#}
+resource "aws_iam_user_group_membership" "mob_user" {
+  user   = aws_iam_user.user.name
+  groups = [data.aws_iam_group.mob_user.group_name]
+}
 
 resource "aws_iam_policy" "assumerole" {
   name        = "${var.name}-assumerole"
@@ -62,5 +62,18 @@ resource "aws_iam_role_policy_attachment" "audit_user_policy" {
   for_each   = var.audit_policy_arns
   provider   = aws.audit
   role       = aws_iam_role.audit_user_role[0].name
+  policy_arn = each.value
+}
+
+resource "aws_iam_role" "bastion_user_role" {
+  count              = signum(length(var.bastion_policy_arns))
+  name               = var.name
+  assume_role_policy = data.aws_iam_policy_document.assumerole_policy.json
+  tags               = local.tags
+}
+
+resource "aws_iam_role_policy_attachment" "bastion_user_policy" {
+  for_each   = var.bastion_policy_arns
+  role       = aws_iam_role.bastion_user_role[0].name
   policy_arn = each.value
 }

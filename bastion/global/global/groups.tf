@@ -33,9 +33,7 @@ resource "aws_iam_group" "developers" {
 resource "aws_iam_group_membership" "developers" {
   name = "developers-group-membership"
 
-  users = [
-    module.dmitry_rendov.name
-  ]
+  users = []
 
   group = aws_iam_group.developers.name
 }
