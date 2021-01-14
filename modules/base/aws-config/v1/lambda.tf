@@ -11,7 +11,8 @@ module "sqs_encryption" {
   role_name                = "aws-config"
   runtime                  = "python3.8"
   source_code_hash         = data.archive_file.sqs_encryption.output_base64sha256
-  timeout                  = "600"
+  timeout                  = 60
+  memory_size              = 128
   attach_vpc_config        = false
   alarm_enabled            = false
   attributes               = ["sqs", "encryption", data.aws_region.current.name]

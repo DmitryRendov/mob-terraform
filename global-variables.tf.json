@@ -90,8 +90,7 @@
       "default": {
         "audit": "652427744890",
         "bastion": "501055688096",
-        "production": "562495469185",
-        "staging": "143430375923"
+        "production": "562495469185"
       }
     },
     "corp_subnets": {
