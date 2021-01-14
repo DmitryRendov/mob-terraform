@@ -10,6 +10,6 @@ else
     diff=$(($expiration_time - $current_time))
     if [[ "$diff" -le 0 ]]; then
         echo "Current token has expired, logging you into bastion account now..."
-        aws-bastion.sh login
+        aws-login.sh login
     fi
 fi
