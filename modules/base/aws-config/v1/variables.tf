@@ -20,3 +20,13 @@ variable "environment" {
 variable "role_name" {
   description = "Name of role to be used in resource naming"
 }
+
+variable "cr_is_enabled" {
+  default     = true
+  description = "Is Config Recorder enabled?"
+}
+
+variable "cr_delivery_frequency" {
+  default     = "One_Hour"
+  description = "The frequency with which AWS Config delivers configuration snapshots."
+}

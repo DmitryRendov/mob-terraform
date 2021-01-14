@@ -64,3 +64,16 @@ resource "aws_iam_role_policy_attachment" "audit_user_policy" {
   role       = aws_iam_role.audit_user_role[0].name
   policy_arn = each.value
 }
+
+resource "aws_iam_role" "bastion_user_role" {
+  count              = signum(length(var.bastion_policy_arns))
+  name               = var.name
+  assume_role_policy = data.aws_iam_policy_document.assumerole_policy.json
+  tags               = local.tags
+}
+
+resource "aws_iam_role_policy_attachment" "bastion_user_policy" {
+  for_each   = var.bastion_policy_arns
+  role       = aws_iam_role.bastion_user_role[0].name
+  policy_arn = each.value
+}

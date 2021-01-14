@@ -45,14 +45,14 @@ resource "aws_config_delivery_channel" "cr" {
   depends_on     = [aws_config_configuration_recorder.cr]
 
   snapshot_delivery_properties {
-    delivery_frequency = local.cr_delivery_frequency
+    delivery_frequency = var.cr_delivery_frequency
   }
 }
 
 resource "aws_config_configuration_recorder_status" "cr" {
   count      = local.count
   name       = aws_config_configuration_recorder.cr[0].name
-  is_enabled = local.cr_is_enabled
+  is_enabled = var.cr_is_enabled
   depends_on = [aws_config_delivery_channel.cr]
 }
 
