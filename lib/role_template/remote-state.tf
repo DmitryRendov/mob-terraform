@@ -1,13 +1,13 @@
-data "terraform_remote_state" "core" {
-  backend   = "s3"
-  workspace = terraform.workspace
+data "terraform_remote_state" "global" {
+  backend = "s3"
 
   config = {
-    key          = "${var.account_name}/roles/core"
-    bucket       = var.tf_remote_state_s3_storage_bucket
-    region       = var.tf_remote_state_s3_storage_region
+    key          = "${var.account_name}/global/global"
+    bucket       = var.terraform_remote_state_bucket
+    region       = var.terraform_remote_state_region
     profile      = "sts"
-    role_arn     = "arn:aws:iam::${var.aws_account_map["production"]}:role/${var.terraform_exec_role}"
+    role_arn     = "arn:aws:iam::${var.aws_account_map["bastion"]}:role/${var.terraform_exec_role}"
     session_name = "terraform"
   }
+
 }

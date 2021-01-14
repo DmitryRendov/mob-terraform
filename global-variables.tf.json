@@ -60,6 +60,18 @@
       }
     },
     {
+      "aws": {
+        "alias": "west",
+        "assume_role": {
+          "role_arn": "arn:aws:iam::${local.aws_account_id}:role/${var.terraform_exec_role}",
+          "session_name": "terraform"
+        },
+        "profile": "sts",
+        "region": "us-west-2",
+        "version": "2.41.0"
+      }
+    },
+    {
       "template": {
         "version": "2.1.2"
       }
@@ -78,8 +90,7 @@
       "default": {
         "audit": "652427744890",
         "bastion": "501055688096",
-        "production": "562495469185",
-        "staging": "143430375923"
+        "production": "562495469185"
       }
     },
     "corp_subnets": {
