@@ -13,6 +13,8 @@ resource "aws_config_config_rule" "iam_access_key_rotation" {
     owner             = "AWS"
     source_identifier = "ACCESS_KEYS_ROTATED"
   }
+
+  depends_on = [aws_config_configuration_recorder.cr]
 }
 
 resource "aws_config_config_rule" "sqs_encryption_check" {
@@ -35,5 +37,6 @@ resource "aws_config_config_rule" "sqs_encryption_check" {
     }
   )
 
-  tags = module.sqs_encryption_check_label.tags
+  tags       = module.sqs_encryption_check_label.tags
+  depends_on = [aws_config_configuration_recorder.cr]
 }

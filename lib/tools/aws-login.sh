@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 
 ##
 ## Logs you in or out of AWS by creating a session token and updating your AWS credentials file in place.
