@@ -1,3 +1,6 @@
+##
+# Region-specific AWS Config rules only (deprecated)
+#
 resource "aws_config_config_rule" "iam_access_key_rotation" {
   count       = local.count
   name        = "iam_access_key_rotation"

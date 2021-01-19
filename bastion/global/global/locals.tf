@@ -2,6 +2,11 @@ locals {
   role_name = "global"
   team      = "ops"
 
+  config_recorder_enabled = false
+  exclude_accounts = [
+    var.aws_account_map.production,
+  ]
+
   developer_policies = {
     headspace_prod_policy_arns = [
       "arn:aws:iam::aws:policy/AWSSupportAccess",
