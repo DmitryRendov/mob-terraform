@@ -3,6 +3,6 @@ resource "aws_config_configuration_aggregator" "default" {
 
   account_aggregation_source {
     account_ids = distinct(values(var.aws_account_map))
-    regions     = ["us-east-1"]
+    regions     = ["us-east-1", "us-west-2"]
   }
 }
