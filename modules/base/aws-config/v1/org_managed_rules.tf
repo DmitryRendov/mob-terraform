@@ -12,5 +12,5 @@ resource "aws_config_organization_managed_rule" "sns_encrypted_kms" {
 }
 
 output "sns_encrypted_kms" {
-  value = local.org_only == 1 ? aws_config_organization_managed_rule.sns_encrypted_kms[0] : null
+  value = aws_config_organization_managed_rule.sns_encrypted_kms != null ? aws_config_organization_managed_rule.sns_encrypted_kms : null
 }
