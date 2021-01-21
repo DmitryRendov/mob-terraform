@@ -2,7 +2,6 @@
 # ORG AWS Config rules
 #
 resource "aws_config_organization_managed_rule" "sns_encrypted_kms" {
-  count           = local.org_only
   name            = "sns_encrypted_kms"
   rule_identifier = "SNS_ENCRYPTED_KMS"
 
@@ -12,5 +11,5 @@ resource "aws_config_organization_managed_rule" "sns_encrypted_kms" {
 }
 
 output "sns_encrypted_kms" {
-  value = aws_config_organization_managed_rule.sns_encrypted_kms != null ? aws_config_organization_managed_rule.sns_encrypted_kms : null
+  value = aws_config_organization_managed_rule.sns_encrypted_kms
 }

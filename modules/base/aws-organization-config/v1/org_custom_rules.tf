@@ -68,30 +68,12 @@ module "sqs_encryption" {
   attributes               = ["sqs", "encryption", data.aws_region.current.name]
   description              = "Lambda for Custom Config Rule to check for SQS encryption compliance."
   variables = {
-    "LOG_LEVEL" = "DEBUG"
-  }
-  providers = {
-    aws = aws
+    "LOG_LEVEL" = "INFO"
   }
 }
 
 data "archive_file" "sqs_encryption" {
   type        = "zip"
   source_file = "${path.module}/files/sqs_encryption/sqs_encryption.py"
-  output_path = local.sqs_encryption_lambda_filename
+  output_path = "${path.module}/files/sqs_encryption_check.zip"
 }
-
-
-#module "sqs_encryption_lambda" {
-#  source                    = "../../../modules/base/aws-organization-config-custom-rule/v1"
-#  name                      = "sns_encryption_lambda"
-#  compliance_resource_types = ["AWS::SQS::Queue"]
-#  parameters = {
-#    "QueueNameStartsWith" : ""
-#  }
-
-#  providers = {
-#    aws = aws
-#    aws.audit = aws.audit
-#  }
-#}

@@ -2,10 +2,9 @@ locals {
   role_name = "global"
   team      = "ops"
 
-  config_recorder_enabled = false
-  exclude_accounts = [
-    var.aws_account_map.production,
-  ]
+  config_recorder_enabled            = true
+  config_recorder_delivery_frequency = "TwentyFour_Hours"
+
 
   developer_policies = {
     headspace_prod_policy_arns = [
