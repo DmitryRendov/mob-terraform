@@ -14,7 +14,8 @@ module "aws_config" {
   cr_s3_bucket          = data.terraform_remote_state.audit.outputs.aws_config_bucket.id
 
   providers = {
-    aws = aws
+    aws       = aws
+    aws.audit = aws.audit
   }
 }
 
@@ -34,6 +35,7 @@ module "aws_config_west" {
   cr_s3_bucket          = data.terraform_remote_state.audit.outputs.aws_config_bucket.id
 
   providers = {
-    aws = aws.west
+    aws       = aws.west
+    aws.audit = aws.audit
   }
 }
