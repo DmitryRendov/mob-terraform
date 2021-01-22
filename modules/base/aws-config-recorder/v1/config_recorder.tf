@@ -9,27 +9,25 @@ resource "aws_config_configuration_recorder" "config_recorder" {
   }
 }
 
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    sid     = ""
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "awsconfig" {
   count       = local.count
   name        = "${module.config_label.id}-role"
   description = "Role for AWS Config recorder to assume"
 
-  assume_role_policy = <<POLICY
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": "sts:AssumeRole",
-            "Principal": {
-                "Service": "config.amazonaws.com"
-            },
-            "Effect": "Allow",
-            "Sid": ""
-        }
-    ]
-}
-POLICY
-
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role_policy_attachment" "AWSConfig" {
@@ -52,6 +50,6 @@ resource "aws_config_delivery_channel" "config_recorder" {
 resource "aws_config_configuration_recorder_status" "config_recorder" {
   count      = local.count
   name       = aws_config_configuration_recorder.config_recorder[0].name
-  is_enabled = var.is_enabled
+  is_enabled = var.is_config_recorder_enabled
   depends_on = [aws_config_delivery_channel.config_recorder]
 }

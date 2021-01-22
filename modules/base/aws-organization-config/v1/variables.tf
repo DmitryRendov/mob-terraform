@@ -1,8 +1,3 @@
-variable "aws_account_map" {
-  description = "Map of all our AWS account IDs"
-  type        = map(string)
-}
-
 variable "enabled" {
   default = true
 }

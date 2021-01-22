@@ -65,7 +65,7 @@ module "sqs_encryption" {
   memory_size              = 128
   attach_vpc_config        = false
   alarm_enabled            = false
-  attributes               = ["sqs", "encryption", data.aws_region.current.name]
+  attributes               = ["sqs", "encryption"]
   description              = "Lambda for Custom Config Rule to check for SQS encryption compliance."
   variables = {
     "LOG_LEVEL" = "INFO"

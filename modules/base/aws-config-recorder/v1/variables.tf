@@ -1,8 +1,3 @@
-variable "aws_account_map" {
-  description = "Map of all our AWS account IDs"
-  type        = map(string)
-}
-
 variable "delivery_frequency" {
   default     = "One_Hour"
   description = "The frequency with which AWS Config delivers configuration snapshots."
@@ -16,7 +11,7 @@ variable "environment" {
   description = "Environment of resources (i.e. prod, staging)"
 }
 
-variable "is_enabled" {
+variable "is_config_recorder_enabled" {
   default     = true
   description = "Is Config Recorder enabled?"
 }
@@ -26,3 +21,8 @@ variable "role_name" {
 }
 
 variable "s3_bucket" {}
+
+variable "record_global_resources" {
+  default     = true
+  description = "Record global resources or not (eg. IAM, CloudFront, etc.)"
+}
