@@ -1,8 +1,34 @@
-resource "aws_config_configuration_aggregator" "default" {
-  name = "all-accounts"
+resource "aws_config_configuration_aggregator" "organization" {
+  depends_on = [aws_iam_role_policy_attachment.organization]
 
-  account_aggregation_source {
-    account_ids = distinct(values(var.aws_account_map))
-    regions     = ["us-east-1"]
+  name = "all-org"
+
+  organization_aggregation_source {
+    regions  = local.aggregator_source_regions
+    role_arn = aws_iam_role.organization.arn
   }
+}
+
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type = "Service"
+
+      identifiers = [
+        "config.amazonaws.com",
+      ]
+    }
+  }
+}
+
+resource "aws_iam_role" "organization" {
+  name               = module.aggregator_role_label.id
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "organization" {
+  role       = aws_iam_role.organization.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRoleForOrganizations"
 }

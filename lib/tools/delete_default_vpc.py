@@ -1,4 +1,19 @@
 #!/usr/bin/env python3
+#
+# Delete ALL default resources in every default VPC in every AWS region.
+# This also applies to custom VPCs that have been created by users and then flagged as the new "default VPC".
+# Forked from: https://github.com/davidobrien1985/delete-aws-default-vpc/blob/master/delete-default-vpc.py
+#
+# Accepted Parameters: -e, --exclude
+#                       (Optional) Comma separated, lowercase list of regions you want to exclude.
+#                      -r, --role
+#                       (Optional) An IAM role to assume and perform the operation in other accounts.
+#                      -n, --dry-run
+#                       (Optional) Show what would have happened.
+# Examples:
+#           python3 delete_default_vpc.py -n
+#           python3 delete_default_vpc.py -e us-west-2,us-east-1
+#           python3 delete_default_vpc.py -r arn:aws:iam::562495469185:role/super-user
 
 import os
 import re
@@ -9,14 +24,10 @@ import argparse
 import logging
 from botocore.exceptions import ClientError
 
-DRY_RUN = True
-EXCEPT_REGIONS = ['us-east-1', 'us-west-2']
-
-ASSUME_ROLE_MODE = False
-CONFIG_ROLE_TIMEOUT_SECONDS = 900
-
-LOGLEVEL = os.getenv("LOG_LEVEL", "ERROR").strip()
 DEBUG = True
+
+CONFIG_ROLE_TIMEOUT_SECONDS = 900
+LOGLEVEL = os.getenv("LOG_LEVEL", "ERROR").strip()
 logger = logging.getLogger(__name__)
 if DEBUG:
     logger.setLevel(logging.DEBUG)
@@ -59,7 +70,7 @@ def get_default_vpcs(client):
 
   return vpc_list
 
-def del_igw(ec2, vpcid):
+def del_igw(ec2, vpcid, dryrun):
   """ Detach and delete the internet-gateway """
   vpc_resource = ec2.Vpc(vpcid)
   igws = vpc_resource.internet_gateways.all()
@@ -69,15 +80,15 @@ def del_igw(ec2, vpcid):
         logger.debug(f"Detaching and Removing igw-id: %s" % igw.id)
         igw.detach_from_vpc(
           VpcId=vpcid,
-          DryRun=DRY_RUN
+          DryRun=dryrun
         )
         igw.delete(
-          DryRun=DRY_RUN
+          DryRun=dryrun
         )
       except ClientError as error:
         print(error)
 
-def del_sub(ec2, vpcid):
+def del_sub(ec2, vpcid, dryrun):
   """ Delete the subnets """
   vpc_resource = ec2.Vpc(vpcid)
   subnets = vpc_resource.subnets.all()
@@ -88,12 +99,12 @@ def del_sub(ec2, vpcid):
       for sub in default_subnets:
         logger.debug(f"Removing sub-id: %s" % sub.id)
         sub.delete(
-          DryRun=DRY_RUN
+          DryRun=dryrun
         )
     except ClientError as error:
       print(error)
 
-def del_rtb(ec2, vpcid):
+def del_rtb(ec2, vpcid, dryrun):
   """ Delete the route-tables """
   vpc_resource = ec2.Vpc(vpcid)
   rtbs = vpc_resource.route_tables.all()
@@ -107,12 +118,12 @@ def del_rtb(ec2, vpcid):
         logger.debug(f"Removing rtb-id: %s" % rtb.id)
         table = ec2.RouteTable(rtb.id)
         table.delete(
-          DryRun=DRY_RUN
+          DryRun=dryrun
         )
     except ClientError as error:
       print(error)
 
-def del_acl(ec2, vpcid):
+def del_acl(ec2, vpcid, dryrun):
   """ Delete the network-access-lists """
 
   vpc_resource = ec2.Vpc(vpcid)
@@ -126,12 +137,12 @@ def del_acl(ec2, vpcid):
           continue
         logger.debug(f"Removing acl-id: %s" % acl.id)
         acl.delete(
-          DryRun=DRY_RUN
+          DryRun=dryrun
         )
     except ClientError as error:
       print(error)
 
-def del_sgp(ec2, vpcid):
+def del_sgp(ec2, vpcid, dryrun):
   """ Delete any security-groups """
   vpc_resource = ec2.Vpc(vpcid)
   sgps = vpc_resource.security_groups.all()
@@ -143,18 +154,18 @@ def del_sgp(ec2, vpcid):
           continue
         logger.debug(f"Removing sg-id: %s" % sg.id)
         sg.delete(
-          DryRun=DRY_RUN
+          DryRun=dryrun
         )
     except ClientError as error:
       print(error)
 
-def del_vpc(ec2, vpcid):
+def del_vpc(ec2, vpcid, dryrun):
   """ Delete the VPC """
   vpc_resource = ec2.Vpc(vpcid)
   try:
     logger.info(f"Removing vpc-id: %s" % vpc_resource.id)
     vpc_resource.delete(
-      DryRun=DRY_RUN
+      DryRun=dryrun
     )
   except ClientError as error:
     print(error)
@@ -169,9 +180,9 @@ def get_client(service, role_arn, region_name = None):
     service -- the service name used for calling the boto.client()
     event -- the event variable given in the lambda handler
     """
-    if not ASSUME_ROLE_MODE:
+    if not role_arn:
         return boto3.client(service,
-                          region_name=region_name)
+                            region_name=region_name)
     credentials = get_assume_role_credentials(role_arn)
     return boto3.client(service, aws_access_key_id=credentials['AccessKeyId'],
                         aws_secret_access_key=credentials['SecretAccessKey'],
@@ -188,7 +199,7 @@ def get_resource(service, role_arn, region_name = None):
     service -- the service name used for calling the boto.client()
     event -- the event variable given in the lambda handler
     """
-    if not ASSUME_ROLE_MODE:
+    if not role_arn:
         return boto3.resource(service,
                               region_name=region_name)
     credentials = get_assume_role_credentials(role_arn)
@@ -233,24 +244,25 @@ def main(**kwargs):
   if 'dryrun' in kwargs:
     dryrun = kwargs.get('dryrun', False)
 
-  exclude = None
+  exclude_regions = []
   if 'exclude' in kwargs:
     exclude = kwargs.pop('exclude', '')
     if exclude:
-      exclude_list = list(filter(lambda x: len(x), re.sub(r"\s+",'', exclude).split(",")))
-      print(exclude_list)
+      exclude_regions = list(filter(lambda x: len(x), re.sub(r"\s+",'', exclude).split(",")))
 
   role_arn = None
   if 'role_arn' in kwargs:
     role_arn = kwargs.get('role_arn', None)
-  print(role_arn)
 
   client = get_client('ec2', role_arn)
   regions = get_regions(client)
 
   for region in regions:
     try:
-      if not region in EXCEPT_REGIONS:
+      logger.info('')
+      logger.info('Processing region: %s', region)
+      logger.info('')
+      if not region in exclude_regions:
         client = get_client('ec2', role_arn, region_name = region)
         ec2 = get_resource('ec2', role_arn, region_name = region)
         vpcs = get_default_vpcs(client)
@@ -265,12 +277,12 @@ def main(**kwargs):
         logger.info('REGION: %s', region)
         logger.info('VPC ID: %s', vpc)
         logger.info('')
-        del_igw(ec2, vpc)
-        del_sub(ec2, vpc)
-        del_rtb(ec2, vpc)
-        del_acl(ec2, vpc)
-        del_sgp(ec2, vpc)
-        del_vpc(ec2, vpc)
+        del_igw(ec2, vpc, dryrun)
+        del_sub(ec2, vpc, dryrun)
+        del_rtb(ec2, vpc, dryrun)
+        del_acl(ec2, vpc, dryrun)
+        del_sgp(ec2, vpc, dryrun)
+        del_vpc(ec2, vpc, dryrun)
 
 if __name__ == "__main__":
     """Command Line calling of this script. """
@@ -278,12 +290,12 @@ if __name__ == "__main__":
                         level=logging.INFO)
 
     parser = argparse.ArgumentParser(
-        description="Sync secrets between Credstash and SSM Parameter Store for particular role and env",
+        description="Delete all default AWS VPCs in all regions",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-e", "--exclude", type=str, required=False,
-                        help="Comma separated list of regions you want to exclude")
+                        help="Comma separated, lowercase list of regions you want to exclude")
     parser.add_argument("-r", "--role", required=False, default=None,
-                        help="Use IAM role to perform the operation")
+                        help="Specify an IAM role to perform the operation")
     parser.add_argument("-n", "--dry-run", action='store_true',
                         help="Show what would have happened")
     args = parser.parse_args()

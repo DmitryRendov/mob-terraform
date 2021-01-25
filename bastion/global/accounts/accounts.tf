@@ -2,6 +2,7 @@ resource "aws_organizations_organization" "mob" {
   aws_service_access_principals = [
     "cloudtrail.amazonaws.com",
     "config.amazonaws.com",
+    "config-multiaccountsetup.amazonaws.com",
   ]
 
   feature_set = "ALL"

@@ -311,7 +311,7 @@ def lambda_handler(event, context):
         liblogging.logEvent(event)
 
     global AWS_CONFIG_CLIENT
-
+    print(event)
     check_defined(event, 'event')
     invoking_event = json.loads(event['invokingEvent'])
     rule_parameters = {}
