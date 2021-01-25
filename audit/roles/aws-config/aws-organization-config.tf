@@ -5,9 +5,10 @@ module "aws_config" {
 
   exclude_accounts = local.exclude_accounts
 
-  providers = {
-    aws.audit   = aws.audit
-    aws.bastion = aws.bastion
-  }
+  alarm_actions = []
 
+  providers = {
+    aws      = aws
+    aws.west = aws.west
+  }
 }
