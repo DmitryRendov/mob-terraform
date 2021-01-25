@@ -4,4 +4,10 @@ module "aws_config" {
   environment = terraform.workspace
 
   exclude_accounts = local.exclude_accounts
+
+  providers = {
+    aws.audit   = aws.audit
+    aws.bastion = aws.bastion
+  }
+
 }

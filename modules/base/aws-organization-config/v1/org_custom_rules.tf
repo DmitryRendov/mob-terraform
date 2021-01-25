@@ -40,6 +40,10 @@ resource "aws_config_organization_custom_rule" "sqs_encryption_check" {
   )
 }
 
+output "sqs_encryption_check" {
+  value = aws_config_organization_custom_rule.sqs_encryption_check
+}
+
 resource "aws_lambda_permission" "lambda_permission" {
   count         = local.count
   statement_id  = "AllowExecutionFromConfig"
