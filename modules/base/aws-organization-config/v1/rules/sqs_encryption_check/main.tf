@@ -1,6 +1,8 @@
 ##
 # Lambda for Custom Config Rule to check for SQS encryption compliance
 #
+data "aws_region" "current" {}
+
 data "aws_iam_policy_document" "sqs_encryption_lambda" {
   statement {
     sid = "EC2"
@@ -24,6 +26,7 @@ data "aws_iam_policy_document" "sqs_encryption_lambda" {
   }
 }
 
+// TODO: Move source code to S3 bucket and CircleCI
 data "archive_file" "sqs_encryption" {
   type        = "zip"
   source_file = "${path.module}/files/sqs_encryption/sqs_encryption.py"
@@ -39,7 +42,7 @@ resource "aws_lambda_permission" "lambda_permission" {
 
 module "sqs_encryption" {
   source                   = "../../../../../../modules/base/lambda/v1"
-  environment              = var.environment
+  environment              = "default"
   filename                 = data.archive_file.sqs_encryption.output_path
   handler                  = "sqs_encryption.lambda_handler"
   iam_role_policy_document = data.aws_iam_policy_document.sqs_encryption_lambda.json
@@ -61,16 +64,12 @@ resource "aws_config_organization_custom_rule" "sqs_encryption_check" {
   depends_on = [
     module.sqs_encryption,
   ]
-  name                        = "sqs_encryption_check"
-  lambda_function_arn         = module.sqs_encryption.function_arn
-  trigger_types               = ["ScheduledNotification"]
+  name                = "sqs_encryption_check"
+  trigger_types       = ["ScheduledNotification"]
+  lambda_function_arn = module.sqs_encryption.function_arn
+  description         = "Check whether SQS queue has encryption at rest enabled."
+
   maximum_execution_frequency = var.maximum_execution_frequency
   excluded_accounts           = var.exclude_accounts
-  description                 = "Check whether SQS queue has encryption at rest enabled."
-
-  input_parameters = jsonencode(
-    {
-      "QueueNameStartsWith" = null
-    }
-  )
+  input_parameters            = var.input_parameters
 }

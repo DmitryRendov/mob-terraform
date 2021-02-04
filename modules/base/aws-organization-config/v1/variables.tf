@@ -9,6 +9,7 @@ variable "environment" {
 variable "exclude_accounts" {
   description = "List of AWS account identifiers to exclude from the rules"
   type        = list(string)
+  default     = []
 }
 
 variable "role_name" {
@@ -20,7 +21,7 @@ variable "alarm_actions" {
   default = []
 }
 
-variable "maximum_execution_frequency" {
+variable "default_execution_frequency" {
   default     = "TwentyFour_Hours"
-  description = "The maximum frequency with which AWS Config runs evaluations for a rule."
+  description = "Default maximum frequency with which AWS Config runs evaluations for a rule."
 }

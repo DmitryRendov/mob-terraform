@@ -20,21 +20,13 @@ resource "aws_config_organization_managed_rule" "sns_encrypted_kms_west" {
   excluded_accounts = var.exclude_accounts
 }
 
-resource "aws_config_organization_managed_rule" "s3_bucket_public_read_prohibited" {
-  name            = "s3_bucket_public_read_prohibited"
-  rule_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
 
-  description = "Checks that your Amazon S3 buckets do not allow public read access. The rule checks the Block Public Access settings, the bucket policy, and the bucket access control list (ACL)."
+# Applicable only in us-east-1 region
+resource "aws_config_organization_managed_rule" "cloudfront_associated_with_waf" {
+  name            = "cloudfront_associated_with_waf"
+  rule_identifier = "CLOUDFRONT_ASSOCIATED_WITH_WAF"
 
-  excluded_accounts = var.exclude_accounts
-}
-
-resource "aws_config_organization_managed_rule" "s3_bucket_public_read_prohibited_west" {
-  provider        = aws.west
-  name            = "s3_bucket_public_read_prohibited"
-  rule_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
-
-  description = "Checks that your Amazon S3 buckets do not allow public read access. The rule checks the Block Public Access settings, the bucket policy, and the bucket access control list (ACL)."
+  description = "Checks if Amazon CloudFront distributions are associated with either AWS WAF or WAFv2 web access control lists (ACLs). This rule is COMPLIANT if the CloudFront distribution is associated with a web ACL."
 
   excluded_accounts = var.exclude_accounts
 }
