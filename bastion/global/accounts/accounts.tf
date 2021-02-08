@@ -3,6 +3,7 @@ resource "aws_organizations_organization" "mob" {
     "cloudtrail.amazonaws.com",
     "config.amazonaws.com",
     "config-multiaccountsetup.amazonaws.com",
+    "securityhub.amazonaws.com",
   ]
 
   feature_set = "ALL"
