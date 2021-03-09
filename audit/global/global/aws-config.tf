@@ -87,6 +87,7 @@ resource "aws_s3_bucket_public_access_block" "aws_config_block" {
 }
 
 module "aws_config_recorder" {
+  count       = local.config_enabled ? 1 : 0
   source      = "../../../modules/base/aws-config-recorder/v1"
   environment = terraform.workspace
   role_name   = local.role_name
@@ -101,6 +102,7 @@ module "aws_config_recorder" {
 }
 
 module "aws_config_recorder_west" {
+  count       = local.config_enabled ? 1 : 0
   source      = "../../../modules/base/aws-config-recorder/v1"
   environment = terraform.workspace
   role_name   = local.role_name
