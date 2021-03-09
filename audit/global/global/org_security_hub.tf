@@ -58,3 +58,30 @@ EOF
     }
   }
 }
+
+resource "aws_securityhub_member" "us_east_1" {
+  count      = local.security_hub_enabled ? 1 : 0
+  account_id = "501055688096"
+  email      = "drendov@gmail.com"
+  invite     = true
+
+  # The invite sometimes takes a few seconds to register before it can be accepted in the target account,
+  # so we pause for 5 seconds to let the invite propagate
+  provisioner "local-exec" {
+    command = "python -c 'import time; time.sleep(5)'"
+  }
+}
+
+resource "aws_securityhub_member" "us_west_2" {
+  count      = local.security_hub_enabled ? 1 : 0
+  provider   = aws.west
+  account_id = "501055688096"
+  email      = "drendov@gmail.com"
+  invite     = true
+
+  # The invite sometimes takes a few seconds to register before it can be accepted in the target account,
+  # so we pause for 5 seconds to let the invite propagate
+  provisioner "local-exec" {
+    command = "python -c 'import time; time.sleep(5)'"
+  }
+}
