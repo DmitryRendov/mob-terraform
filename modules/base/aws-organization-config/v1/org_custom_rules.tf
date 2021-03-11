@@ -27,34 +27,3 @@ module "sqs_encryption_west" {
     aws = aws.west
   }
 }
-
-
-module "efs_encryption" {
-  source = "./rules/efs_encryption_check"
-
-  maximum_execution_frequency = "Twelve_Hours"
-  exclude_accounts            = var.exclude_accounts
-
-  input_parameters = jsonencode(
-    {
-      "KmsKeyId" = null
-    }
-  )
-}
-
-module "efs_encryption_west" {
-  source = "./rules/efs_encryption_check"
-
-  maximum_execution_frequency = "Twelve_Hours"
-  exclude_accounts            = var.exclude_accounts
-
-  input_parameters = jsonencode(
-    {
-      "KmsKeyId" = null
-    }
-  )
-
-  providers = {
-    aws = aws.west
-  }
-}

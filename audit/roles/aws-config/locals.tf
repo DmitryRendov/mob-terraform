@@ -9,4 +9,8 @@ locals {
     var.aws_account_map.production,
     var.aws_account_map.staging,
   ]
+
+  # The maximum frequency with which AWS Config runs evaluations for a rule.
+  default_execution_frequency = "TwentyFour_Hours"
+
 }

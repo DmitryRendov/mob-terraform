@@ -18,6 +18,7 @@ module "label" {
 }
 
 data "aws_iam_policy_document" "default" {
+
   statement {
     actions = ["sts:AssumeRole"]
 

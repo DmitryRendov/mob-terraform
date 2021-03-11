@@ -46,6 +46,15 @@ data "aws_iam_policy_document" "default" {
       sort(var.aws_account_ids),
     )
   }
+
+  statement {
+    actions = [
+      "s3:*",
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+
 }
 
 resource "aws_iam_policy" "default" {
