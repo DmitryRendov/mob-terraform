@@ -1,6 +1,5 @@
 locals {
-  iam_role_count = var.enabled && var.iam_role_arn == "" ? 1 : 0
-  count          = var.enabled ? 1 : 0
+  iam_role_count = var.iam_role_arn == "" ? 1 : 0
 
   lambda_function_id = length(module.label.id) > 64 ? module.label.id_brief : module.label.id
 
@@ -11,20 +10,19 @@ locals {
 }
 
 module "label" {
-  source      = "../../../../modules/base/null-label/v1"
+  source      = "../../../../modules/base/null-label/v2"
   environment = var.environment
   role_name   = var.role_name
   attributes  = var.attributes
 }
 
 data "aws_iam_policy_document" "default" {
-
   statement {
     actions = ["sts:AssumeRole"]
 
     principals {
       type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
+      identifiers = compact(concat(["lambda.amazonaws.com"], var.assume_role_trusted_services))
     }
   }
 }
@@ -36,7 +34,6 @@ resource "aws_iam_role" "default" {
 }
 
 resource "aws_lambda_function" "default" {
-  count            = local.count
   filename         = var.filename
   function_name    = local.lambda_function_id
   role             = local.iam_role_count < 1 ? var.iam_role_arn : aws_iam_role.default[0].arn
@@ -47,6 +44,7 @@ resource "aws_lambda_function" "default" {
   timeout          = var.timeout
   kms_key_arn      = var.kms_key_arn
   description      = var.description
+  publish          = var.publish
 
   s3_bucket         = var.s3_bucket
   s3_key            = var.s3_key
@@ -60,8 +58,11 @@ resource "aws_lambda_function" "default" {
     }
   }
 
-  environment {
-    variables = var.variables
+  dynamic "environment" {
+    for_each = length(var.variables) > 0 ? [1] : []
+    content {
+      variables = var.variables
+    }
   }
 
   lifecycle {
@@ -70,7 +71,7 @@ resource "aws_lambda_function" "default" {
 }
 
 resource "aws_iam_role_policy" "default" {
-  count  = var.enabled ? local.iam_role_count : 0
+  count  = local.iam_role_count
   name   = local.lambda_function_id
   role   = aws_iam_role.default[0].name
   policy = var.iam_role_policy_document
@@ -83,7 +84,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_access" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "error" {
-  count               = var.alarm_enabled == "true" && var.enabled ? 1 : 0
+  count               = var.alarm_enabled ? 1 : 0
   alarm_name          = "${local.lambda_function_id}-error"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = var.alarm_evaluation_periods
@@ -95,7 +96,7 @@ resource "aws_cloudwatch_metric_alarm" "error" {
   treat_missing_data  = var.treat_missing_data
 
   dimensions = {
-    FunctionName = aws_lambda_function.default[0].function_name
+    FunctionName = aws_lambda_function.default.function_name
   }
 
   alarm_description = "This metric monitors errors that occur in ${local.lambda_function_id}"
@@ -104,9 +105,7 @@ resource "aws_cloudwatch_metric_alarm" "error" {
 }
 
 resource "aws_cloudwatch_log_group" "group" {
-  count             = var.enabled ? 1 : 0
-  name              = "/aws/lambda/${aws_lambda_function.default[0].function_name}"
+  name              = "/aws/lambda/${aws_lambda_function.default.function_name}"
   retention_in_days = var.log_retention
-
-  tags = module.label.tags
+  tags              = module.label.tags
 }

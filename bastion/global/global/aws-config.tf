@@ -25,3 +25,15 @@ module "aws_config_recorder_west" {
     aws = aws.west
   }
 }
+
+module "aws_config_east" {
+  source          = "../../../modules/base/aws-config/v1"
+  aws_account_map = var.aws_account_map
+  environment     = terraform.workspace
+  role_name       = var.account_name
+
+  providers = {
+    aws = aws
+  }
+
+}
