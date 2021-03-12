@@ -55,22 +55,31 @@ module "sqs_encryption_east" {
 ## Inputs
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
+| `aws_account_ids` | |list(string) | `` | yes |
+| `aws_account_map` |Map of all our AWS account IDs |map(string) | `` | yes |
 | `exclude_accounts` |List of AWS account identifiers to exclude from the rules |list(string) | `[]` | no |
-| `input_parameters` |A string in JSON format that is passed to the AWS Config Rule Lambda Function. | | `` | no |
+| `input_parameters` |The parameters are passed to the AWS Config Rule Lambda Function in JSON format. | | `map[]` | no |
 | `maximum_execution_frequency` |The maximum frequency with which AWS Config runs evaluations for a rule. | | `TwentyFour_Hours` | no |
 
 Managed Resources
 -----------------
 * `aws_config_organization_custom_rule.sqs_encryption`
+* `aws_iam_policy.sqs_encryption`
+* `aws_iam_role_policy_attachment.default`
 * `aws_lambda_permission.lambda_permission`
 
 Data Resources
 --------------
 * `data.archive_file.sqs_encryption`
 * `data.aws_iam_policy_document.sqs_encryption_lambda`
+* `data.aws_iam_role.cross_account_role`
+* `data.aws_iam_role.lambda_role`
 * `data.aws_region.current`
 
 Child Modules
 -------------
-* `sqs_encryption` from `../../../../../modules/site/lambda/v4`
+* `lambda_cross_account_label` from `../../../../../modules/base/null-label/v2`
+* `lambda_label` from `../../../../../modules/base/null-label/v2`
+* `lambda_role_label` from `../../../../../modules/base/null-label/v2`
+* `sqs_encryption` from `../../../../../modules/site/lambda/v5`
 <!-- END OF TERRAFORM-DOCS HOOK -->

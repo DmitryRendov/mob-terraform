@@ -7,19 +7,21 @@ module "sqs_encryption" {
 
   maximum_execution_frequency = local.default_execution_frequency
   exclude_accounts            = local.exclude_accounts
-  iam_role                    = module.aws_config_cross.config_iam_role
+  aws_account_map             = var.aws_account_map
+  aws_account_ids             = distinct(values(var.aws_account_map))
 
   input_parameters = {
     "QueueNameStartsWith" = null
   }
 }
 
-module "sqs_encryption_west" {
+module "sqs_encryption_east" {
   source = "./rules/sqs_encryption"
 
   maximum_execution_frequency = local.default_execution_frequency
   exclude_accounts            = local.exclude_accounts
-  iam_role                    = module.aws_config_cross.config_iam_role
+  aws_account_map             = var.aws_account_map
+  aws_account_ids             = distinct(values(var.aws_account_map))
 
   input_parameters = {
     "QueueNameStartsWith" = null

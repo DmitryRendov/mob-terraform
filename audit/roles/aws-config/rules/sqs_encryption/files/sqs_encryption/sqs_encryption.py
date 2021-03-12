@@ -15,10 +15,16 @@ import sys
 import datetime
 import boto3
 import botocore
-import time
 
-LOG_GROUP='org-lambda-group-' + time.strftime("%Y%m%d-%H%M%S")
-LOG_STREAM='org-lambda-stream-' + time.strftime("%Y%m%d-%H%M%S")
+import logging
+import time
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
 
 try:
     import liblogging
@@ -28,8 +34,6 @@ except ImportError:
 ##############
 # Parameters #
 ##############
-
-SEQ_TOKEN = ""
 
 # Define the default resource to report to Config Rules
 DEFAULT_RESOURCE_TYPE = 'AWS::SQS::Queue'
@@ -176,10 +180,10 @@ def get_execution_role_arn(event):
         if role_name:
             execution_role_prefix = event["executionRoleArn"].split("/")[0]
             role_arn = "{}/{}".format(execution_role_prefix, role_name)
-            push_logs("role_arn = %s", role_arn)
-
+            logging.debug("Is used ExecutionRoleName by the ARN %s", role_arn)
     if not role_arn:
         role_arn = event['executionRoleArn']
+        logging.debug("Is used devault executionRoleArn %s", role_arn)
 
     return role_arn
 
@@ -267,12 +271,10 @@ def get_assume_role_credentials(role_arn, region=None):
         if 'liblogging' in sys.modules:
             liblogging.logSession(role_arn, assume_role_response)
         logging.debug("LogSession = %s %s", role_arn, assume_role_response)
-        push_logs("LogSession = %s %s", role_arn, assume_role_response)
         return assume_role_response['Credentials']
     except botocore.exceptions.ClientError as ex:
         # Scrub error message for any internal account info leaks
         print(str(ex))
-        push_logs(ex)
         if 'AccessDenied' in ex.response['Error']['Code']:
             ex.response['Error']['Message'] = "AWS Config does not have permission to assume the IAM role."
         else:
@@ -316,55 +318,17 @@ def clean_up_old_evaluations(latest_evaluations, event):
 
     return cleaned_evaluations + latest_evaluations
 
-def create_logs(context):
-    logs = boto3.client('logs')
-    try:
-        logs.create_log_group(logGroupName=LOG_GROUP)
-        logs.create_log_stream(logGroupName=LOG_GROUP, logStreamName=LOG_STREAM)
-    except botocore.exceptions.ClientError as ex:
-        print(str(ex))
-        pass
-
-def push_logs(message):
-    logs = boto3.client('logs')
-    timestamp = int(round(time.time() * 1000))
-
-    response = logs.describe_log_streams(
-        logGroupName=LOG_GROUP,
-        limit=1
-    )
-    if 'logStreams' in response:
-        token = response['logStreams'][0]['uploadSequenceToken']
-
-    response = logs.put_log_events(
-        logGroupName=LOG_GROUP,
-        logStreamName=LOG_STREAM,
-        logEvents=[
-            {
-                'timestamp': timestamp,
-                'message': time.strftime('%Y-%m-%d %H:%M:%S') + str(message)
-            }
-        ],
-        sequenceToken=token
-    )
-    if 'nextSequenceToken' in response:
-        SEQ_TOKEN=response['nextSequenceToken']
-
 def lambda_handler(event, context):
     if 'liblogging' in sys.modules:
         liblogging.logEvent(event)
 
-    create_logs(context)
-    push_logs(event)
-
     global AWS_CONFIG_CLIENT
-
+    print(event)
     check_defined(event, 'event')
     invoking_event = json.loads(event['invokingEvent'])
     rule_parameters = {}
     if 'ruleParameters' in event:
         rule_parameters = json.loads(event['ruleParameters'])
-    push_logs(rule_parameters)
 
     try:
         valid_rule_parameters = evaluate_parameters(rule_parameters)
@@ -379,7 +343,7 @@ def lambda_handler(event, context):
                 compliance_result = evaluate_compliance(event, configuration_item, valid_rule_parameters)
             else:
                 compliance_result = "NOT_APPLICABLE"
-            push_logs(compliance_result)
+            logging.debug("Compliance result %s", str(compliance_result))
         else:
             return build_internal_error_response('Unexpected message type', str(invoking_event))
     except botocore.exceptions.ClientError as ex:
@@ -437,6 +401,7 @@ def lambda_handler(event, context):
         del evaluation_copy[:100]
 
     # Used solely for RDK test to be able to test Lambda function
+    logging.debug("Evaluations %s", str(evaluations))
     return evaluations
 
 def is_internal_error(exception):

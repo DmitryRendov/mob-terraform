@@ -1,5 +1,13 @@
+variable "aws_account_ids" {
+  type = list(string)
+}
+variable "aws_account_map" {
+  description = "Map of all our AWS account IDs"
+  type        = map(string)
+}
+
 variable "input_parameters" {
-  description = "A string in JSON format that is passed to the AWS Config Rule Lambda Function."
+  description = "The parameters are passed to the AWS Config Rule Lambda Function in JSON format."
   default     = {}
 }
 
@@ -12,9 +20,4 @@ variable "exclude_accounts" {
 variable "maximum_execution_frequency" {
   default     = "TwentyFour_Hours"
   description = "The maximum frequency with which AWS Config runs evaluations for a rule."
-}
-
-variable "iam_role" {
-  description = "A string in JSON format that is passed to the AWS Config Rule Lambda Function."
-  default     = ""
 }
