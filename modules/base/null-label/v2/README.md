@@ -44,7 +44,7 @@ module "video_label" {
 ### v1
 - Add shortened id to output
 - Add "team" and "delimiter" to output
-- feat: upgrade modules to terraform 0.12 (OPS-3772)
+- feat: upgrade modules to terraform 0.12
 
 
 <!-- BEGINNING OF TERRAFORM-DOCS HOOK -->

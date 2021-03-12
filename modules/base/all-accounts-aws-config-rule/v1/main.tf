@@ -11,6 +11,7 @@ data "aws_iam_policy_document" "assume_role_policy" {
   }
 }
 
+
 # All of our AWS Config Rule lambdas live in the Audit account. This role is to allow the lambda in the Audit account to report back the results in the account the rule is created in.
 resource "aws_iam_role" "aws_config_rule_audit" {
   provider    = aws.audit
@@ -55,6 +56,9 @@ resource "aws_config_config_rule" "aws_config_rule_audit" {
     }
   }
 }
+
+
+
 
 # All of our AWS Config Rule lambdas live in the Audit account. This role is to allow the lambda in the Audit account to report back the results in the account the rule is created in.
 resource "aws_iam_role" "aws_config_rule_bastion" {

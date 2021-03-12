@@ -2,8 +2,6 @@ resource "aws_lambda_function" "default" {
   provider      = aws.audit
   filename      = "lambda_function.zip"
   function_name = module.lambda_label.id
-  memory_size   = 128
-  timeout       = 60
   role          = aws_iam_role.config_lambda.arn
   handler       = "lambda_function.lambda_handler"
 
@@ -46,15 +44,6 @@ data "aws_iam_policy_document" "default" {
       sort(var.aws_account_ids),
     )
   }
-
-  statement {
-    actions = [
-      "s3:*",
-    ]
-    effect    = "Allow"
-    resources = ["*"]
-  }
-
 }
 
 resource "aws_iam_policy" "default" {
@@ -80,4 +69,22 @@ resource "aws_lambda_permission" "allow_cross_account" {
   function_name  = aws_lambda_function.default.function_name
   principal      = "config.amazonaws.com"
   source_account = element(sort(var.aws_account_ids), count.index)
+}
+
+resource "aws_cloudwatch_metric_alarm" "error_alarm" {
+  alarm_name          = module.alarm_label.id
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "Errors"
+  namespace           = "AWS/Lambda"
+  period              = "86400"
+  statistic           = "SampleCount"
+  threshold           = "1"
+  alarm_description   = "AWS Config Lambda ${module.lambda_label.id} errors"
+  alarm_actions       = var.alarm_actions
+  ok_actions          = var.alarm_actions
+
+  dimensions = {
+    FunctionName = aws_lambda_function.default.function_name
+  }
 }
