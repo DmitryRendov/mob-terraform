@@ -38,3 +38,30 @@ module "sqs_encryption_east" {
     aws.bastion = aws.bastion
   }
 }
+
+module "s3_bucket_encryption_custom" {
+  source = "./rules/s3_bucket_encryption_custom"
+
+  exclude_accounts = local.exclude_accounts
+  aws_account_map  = var.aws_account_map
+  aws_account_ids  = distinct(values(var.aws_account_map))
+
+  providers = {
+    aws.audit   = aws.audit
+    aws.bastion = aws.bastion
+  }
+}
+
+module "s3_bucket_encryption_custom_east" {
+  source = "./rules/s3_bucket_encryption_custom"
+
+  exclude_accounts = local.exclude_accounts
+  aws_account_map  = var.aws_account_map
+  aws_account_ids  = distinct(values(var.aws_account_map))
+
+  providers = {
+    aws         = aws.west
+    aws.audit   = aws.audit
+    aws.bastion = aws.bastion
+  }
+}
