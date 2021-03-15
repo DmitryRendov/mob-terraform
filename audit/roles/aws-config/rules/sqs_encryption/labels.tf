@@ -9,12 +9,12 @@ module "lambda_role_label" {
   source      = "../../../../../modules/base/null-label/v2"
   environment = "audit"
   role_name   = "aws-config"
-  attributes  = ["reporter"]
+  attributes  = ["sqs", "encryption", "role", data.aws_region.current.name]
 }
 
-module "lambda_cross_account_label" {
+module "lambda_cross_account_role_label" {
   source      = "../../../../../modules/base/null-label/v2"
   environment = "audit"
   role_name   = "aws-config"
-  attributes  = ["reporter", "cross", "account"]
+  attributes  = ["sqs", "encryption", "cross", "account", "role", data.aws_region.current.name]
 }

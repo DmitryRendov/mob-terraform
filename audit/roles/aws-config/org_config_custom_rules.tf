@@ -13,6 +13,11 @@ module "sqs_encryption" {
   input_parameters = {
     "QueueNameStartsWith" = null
   }
+  providers = {
+    aws.audit   = aws.audit
+    aws.bastion = aws.bastion
+  }
+
 }
 
 module "sqs_encryption_east" {
@@ -28,6 +33,8 @@ module "sqs_encryption_east" {
   }
 
   providers = {
-    aws = aws.west
+    aws         = aws.west
+    aws.audit   = aws.audit
+    aws.bastion = aws.bastion
   }
 }

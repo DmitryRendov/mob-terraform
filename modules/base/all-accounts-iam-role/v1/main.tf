@@ -6,7 +6,6 @@ resource "aws_iam_role" "default_audit" {
   assume_role_policy = var.assume_role_policy_document
 }
 
-// TODO: add the ability for this module to create custom policies in new accounts
 resource "aws_iam_role_policy_attachment" "aws_config_rule_audit" {
   provider   = aws.audit
   role       = aws_iam_role.default_audit.id
@@ -21,7 +20,6 @@ resource "aws_iam_role" "default_bastion" {
   assume_role_policy = var.assume_role_policy_document
 }
 
-// TODO: add the ability for this module to create custom policies in new accounts
 resource "aws_iam_role_policy_attachment" "aws_config_rule_bastion" {
   provider   = aws.bastion
   role       = aws_iam_role.default_bastion.id
